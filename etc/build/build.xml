@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<project basedir="." default="compile">
+	
+	<property file="build.properties" />
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${jscompiler}" />
+
+	<!-- ============ Merges and minimizes JavaScript code into one file =============== -->
+	
+	<target name="compile">
+		<jscomp compilationLevel="simple" debug="false" output="${basedir}/../../war/js/diagramly.min.js">
+			<sources dir="${basedir}/../../war/js/mxgraph">
+				<file name="mxClient.js" />
+			</sources>
+			
+			<sources dir="${grapheditor.dir}">
+				<file name="Editor.js" />
+				<file name="Graph.js" />
+				<file name="Shapes.js" />
+				<file name="EditorUi.js" />
+				<file name="Actions.js" />
+				<file name="Menus.js" />
+				<file name="Sidebar.js" />
+				<file name="Toolbar.js" />
+				<file name="Dialogs.js" />
+			</sources>
+			
+			<sources dir="${basedir}/../../war/js/diagramly">
+				<file name="GoogleDrive.js" />
+				<file name="Integration.js" />
+				<file name="Dialogs.js" />
+				<file name="Sidebar.js" />
+				<file name="EditorUi.js" />
+				<file name="Sharing.js" />
+				<file name="Diagramly.js" />
+			</sources>
+			
+			<sources dir="${basedir}/../../war/js/sharejs">
+				<file name="socket.io.js" />
+				<file name="share.uncompressed.js" />
+				<file name="json.uncompressed.js" />
+			</sources>
+			
+			<sources dir="${basedir}/../../war/js/deflate">
+				<file name="rawdeflate.js" />
+				<file name="base64.js" />
+			</sources>
+			
+			<sources dir="${basedir}/../../war/js/spin">
+				<file name="spin.min.js" />
+			</sources>
+		</jscomp>
+	</target>
+
+	<!-- ========================= Java Compiler class path ========================= -->
+
+	<path id="javac.class.path">
+		<fileset dir="${war.dir}/WEB-INF/lib" includes="*.jar" />
+		<fileset dir="${imageexport.dir}/jars" includes="servlet-api-2.5.jar" />
+	</path>
+
+	<!-- ================= Compiles the code with Java compiler ====================== -->
+
+	<target name="javac">
+		<mkdir dir="${javac.dir}"/>
+		<javac srcdir="${src.dir}" includes="**/*.java" encoding="utf-8" destdir="${javac.dir}" source="1.6" target="1.6" debug="true" debuglevel="lines,vars,source">
+			<classpath refid="javac.class.path" />
+		</javac>
+		<copy todir="${javac.dir}/META-INF">
+			<fileset dir="${src.dir}/META-INF">
+			</fileset>
+		</copy>
+		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />
+	</target>
+	
+	<!-- ================== Cleans the output directories ============================= -->
+
+	<target name="clean">
+		<delete failonerror="false">
+			<fileset dir="${javac.dir}">
+			</fileset>
+			<fileset dir="${build.dir}">
+			</fileset>
+		</delete>
+	</target>
+
+	<!-- ================== Cleans the output directories ============================= -->
+
+	<target name="war" depends="javac" description="Create a war file">
+		<zip destfile="${build.dir}/${war.name}" basedir="${war.dir}" >
+		</zip>
+	</target>
+
+</project>
